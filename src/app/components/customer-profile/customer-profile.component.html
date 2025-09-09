@@ -1,0 +1,159 @@
+<div class="container">
+  <div class="profile-header">
+    <div class="profile-avatar">
+      <div class="avatar-circle">
+        <span class="avatar-text">{{currentCustomer?.name?.charAt(0)?.toUpperCase()}}</span>
+      </div>
+    </div>
+    <div class="profile-info">
+      <h1>{{currentCustomer?.name}}</h1>
+      <p class="profile-subtitle">Customer Profile</p>
+    </div>
+  </div>
+
+  <div class="profile-content">
+    <div class="profile-card">
+      <div class="card-header">
+        <h3>Personal Information</h3>
+        <button *ngIf="!editMode" (click)="toggleEditMode()" class="btn secondary btn-sm">
+          <span>✏️</span>
+          Edit Profile
+        </button>
+        <div *ngIf="editMode" class="edit-actions">
+          <button (click)="saveProfile()" class="btn primary btn-sm">
+            <span>💾</span>
+            Save
+          </button>
+          <button (click)="toggleEditMode()" class="btn secondary btn-sm">
+            <span>❌</span>
+            Cancel
+          </button>
+        </div>
+      </div>
+
+      <div class="profile-details">
+        <div class="detail-row">
+          <label>Full Name</label>
+          <div *ngIf="!editMode" class="detail-value">{{currentCustomer?.name}}</div>
+          <input *ngIf="editMode" type="text" [(ngModel)]="editForm.name" class="form-input" required>
+        </div>
+
+        <div class="detail-row">
+          <label>Email Address</label>
+          <div *ngIf="!editMode" class="detail-value">{{currentCustomer?.email}}</div>
+          <input *ngIf="editMode" type="email" [(ngModel)]="editForm.email" class="form-input" required>
+        </div>
+
+        <div class="detail-row">
+          <label>Phone Number</label>
+          <div *ngIf="!editMode" class="detail-value">{{currentCustomer?.phone}}</div>
+          <input *ngIf="editMode" type="tel" [(ngModel)]="editForm.phone" class="form-input" required>
+        </div>
+
+        <div class="detail-row">
+          <label>Address</label>
+          <div *ngIf="!editMode" class="detail-value">{{currentCustomer?.address}}</div>
+          <textarea *ngIf="editMode" [(ngModel)]="editForm.address" class="form-input" rows="3" required></textarea>
+        </div>
+      </div>
+    </div>
+
+    <div class="profile-card">
+      <div class="card-header">
+        <h3>Security Settings</h3>
+      </div>
+      
+      <div class="security-options">
+        <div class="security-item">
+          <div class="security-info">
+            <h4>Password</h4>
+            <p>Change your account password</p>
+          </div>
+          <button (click)="openPasswordModal()" class="btn primary btn-sm">
+            <span>🔒</span>
+            Change Password
+          </button>
+        </div>
+        
+        <div class="security-item">
+          <div class="security-info">
+            <h4>Account Status</h4>
+            <p>Your account is active and secure</p>
+          </div>
+          <span class="status-badge active">✅ Active</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="profile-card">
+      <div class="card-header">
+        <h3>Account Actions</h3>
+      </div>
+      
+      <div class="account-actions">
+        <button class="btn secondary action-btn">
+          <span>📋</span>
+          <div class="action-info">
+            <h4>Order History</h4>
+            <p>View your past orders</p>
+          </div>
+        </button>
+        
+        <button class="btn secondary action-btn">
+          <span>❤️</span>
+          <div class="action-info">
+            <h4>Wishlist</h4>
+            <p>Manage saved items</p>
+          </div>
+        </button>
+        
+        <button class="btn secondary action-btn">
+          <span>🎯</span>
+          <div class="action-info">
+            <h4>Preferences</h4>
+            <p>Update your preferences</p>
+          </div>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Password Change Modal -->
+<div *ngIf="showPasswordModal" class="modal">
+  <div class="modal-content password-modal">
+    <div class="modal-header">
+      <h3>Change Password</h3>
+      <button class="close-btn" (click)="closePasswordModal()">✕</button>
+    </div>
+    
+    <form (ngSubmit)="changePassword()" #passwordFormRef="ngForm">
+      <div class="form-group">
+        <label>Current Password</label>
+        <input type="password" [(ngModel)]="passwordForm.currentPassword" 
+               name="currentPassword" required class="form-input">
+      </div>
+      
+      <div class="form-group">
+        <label>New Password</label>
+        <input type="password" [(ngModel)]="passwordForm.newPassword" 
+               name="newPassword" required minlength="6" class="form-input">
+        <small class="form-hint">Password must be at least 6 characters long</small>
+      </div>
+      
+      <div class="form-group">
+        <label>Confirm New Password</label>
+        <input type="password" [(ngModel)]="passwordForm.confirmPassword" 
+               name="confirmPassword" required class="form-input">
+      </div>
+      
+      <div class="modal-actions">
+        <button type="button" class="btn secondary" (click)="closePasswordModal()">Cancel</button>
+        <button type="submit" class="btn primary" [disabled]="!passwordFormRef.valid">
+          <span>🔒</span>
+          Change Password
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

@@ -1,0 +1,112 @@
+<div class="container">
+  <div class="hero-section">
+    <h1>Welcome to MultiVendor Store</h1>
+    <p *ngIf="currentCustomer" class="welcome-text">Hello {{currentCustomer.name}}! 😊</p>
+    <p *ngIf="!currentCustomer" class="welcome-text">Discover amazing products from trusted vendors</p>
+    
+    <!-- Search Bar -->
+    <div class="search-container">
+      <div class="search-bar">
+        <div class="search-input-wrapper">
+          <span class="search-icon">🔍</span>
+          <input type="text" 
+                 [(ngModel)]="searchQuery" 
+                 (input)="onSearch()"
+                 placeholder="Search products, categories..."
+                 class="search-input">
+          <button *ngIf="searchQuery" 
+                  (click)="clearSearch()" 
+                  class="clear-btn">×</button>
+        </div>
+        
+        <!-- Quick Search Categories -->
+        <div class="quick-search">
+          <span class="quick-label">Quick:</span>
+          <button *ngFor="let category of categories.slice(1, 5)" 
+                  (click)="searchByCategory(category.name)"
+                  class="quick-btn">
+            {{category.icon}} {{category.name}}
+          </button>
+        </div>
+      </div>
+      
+      <!-- Search Results Dropdown -->
+      <div *ngIf="showSearchResults" class="search-results">
+        <div class="results-header">
+          <span>{{searchResults.length}} results for "{{searchQuery}}"</span>
+          <button (click)="clearSearch()" class="close-results">×</button>
+        </div>
+        
+        <div class="results-list">
+          <div *ngFor="let product of searchResults.slice(0, 6)" 
+               class="result-item" 
+               (click)="viewProduct(product.id)">
+            <img [src]="product.images[0]" [alt]="product.name">
+            <div class="result-info">
+              <h4>{{product.name}}</h4>
+              <p>{{product.category}}</p>
+              <span class="result-price">₹{{product.price}}</span>
+            </div>
+          </div>
+        </div>
+        
+        <div *ngIf="searchResults.length > 6" class="view-all">
+          <button (click)="router.navigate(['/products'], { queryParams: { search: searchQuery } })" 
+                  class="btn primary">
+            View All {{searchResults.length}} Results
+          </button>
+        </div>
+        
+        <div *ngIf="searchResults.length === 0" class="no-results">
+          <span>🔍 No products found</span>
+          <p>Try searching for different keywords</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Categories Section -->
+  <div class="categories-section">
+    <div class="section-header">
+      <h2>Shop by Category</h2>
+      <p>Explore our wide range of product categories</p>
+    </div>
+    
+    <div class="categories-grid">
+      <div *ngFor="let category of categories" 
+           class="category-card" 
+           [class.active]="selectedCategory === category.name"
+           [attr.data-color]="category.color"
+           (click)="selectCategory(category.name)">
+        <div class="category-icon">{{category.icon}}</div>
+        <div class="category-name">{{category.name}}</div>
+        <div class="category-count">
+          {{getCategoryCount(category.name)}} items
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="products-section">
+    <h3>{{selectedCategory === 'All' ? 'All Products' : selectedCategory}}</h3>
+    <div class="product-grid">
+    <div *ngFor="let product of getFilteredProducts()" class="product-card" (click)="viewProduct(product.id)">
+      <img [src]="product.images[0]" [alt]="product.name">
+      <div class="product-info">
+        <h3>{{product.name}}</h3>
+        <p>{{product.description}}</p>
+        <div class="price">₹{{product.price}}</div>
+        <button class="btn primary btn-sm add-to-cart-btn" 
+                (click)="addToCart(product.id, $event)"
+                *ngIf="currentCustomer?.type === 'customer'">
+          <span>🛒</span>
+          Add to Cart
+        </button>
+      </div>
+    </div>
+    
+    <div *ngIf="getFilteredProducts().length === 0" class="no-products">
+      <p>No products available in this category.</p>
+    </div>
+  </div>
+</div>

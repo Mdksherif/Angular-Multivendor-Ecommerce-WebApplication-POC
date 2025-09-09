@@ -1,0 +1,41 @@
+<div class="container">
+  <div class="page-header">
+    <h1>{{selectedCategory === 'All' ? 'All Products' : selectedCategory}}</h1>
+    <p>{{filteredProducts.length}} products found</p>
+  </div>
+
+  <div class="category-filter">
+    <div class="filter-tabs">
+      <button *ngFor="let category of categories" 
+              class="filter-tab" 
+              [class.active]="selectedCategory === category.name"
+              (click)="selectCategory(category.name)">
+        <span class="tab-icon">{{category.icon}}</span>
+        <span>{{category.name}}</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="products-grid">
+    <div *ngFor="let product of filteredProducts" class="product-card" (click)="viewProduct(product.id)">
+      <img [src]="product.images[0]" [alt]="product.name">
+      <div class="product-info">
+        <h3>{{product.name}}</h3>
+        <p>{{product.description}}</p>
+        <div class="price">₹{{product.price}}</div>
+        <button class="btn primary btn-sm add-to-cart-btn" 
+                (click)="addToCart(product.id, $event)"
+                *ngIf="currentCustomer?.type === 'customer'">
+          <span>🛒</span>
+          Add to Cart
+        </button>
+      </div>
+    </div>
+  </div>
+  
+  <div *ngIf="filteredProducts.length === 0" class="no-products">
+    <div class="empty-icon">📦</div>
+    <h3>No products found</h3>
+    <p>No products available in this category.</p>
+  </div>
+</div>

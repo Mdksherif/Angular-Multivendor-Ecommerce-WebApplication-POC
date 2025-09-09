@@ -1,0 +1,77 @@
+<nav class="navbar">
+  <div class="nav-container">
+    <div class="nav-brand">
+      <a routerLink="/home" class="brand-link">
+        <span class="brand-icon">🛒</span>
+        <span class="brand-text">MultiVendor</span>
+      </a>
+    </div>
+    
+    <div class="nav-menu" [class.active]="isMenuOpen">
+      <a routerLink="/home" class="nav-link" routerLinkActive="active" *ngIf="currentUser?.type !== 'vendor'">
+        <span class="nav-icon">🏠</span>
+        Home
+      </a>
+      <a routerLink="/vendor/login" class="nav-link" routerLinkActive="active" *ngIf="!currentUser">
+        <span class="nav-icon">👨‍💼</span>
+        Vendor Login
+      </a>
+      <a routerLink="/customer/login" class="nav-link" routerLinkActive="active" *ngIf="!currentUser">
+        <span class="nav-icon">👤</span>
+        Customer Login
+      </a>
+      
+      <a routerLink="/cart" class="nav-link cart-link" routerLinkActive="active" *ngIf="currentUser?.type === 'customer'">
+        <span class="nav-icon">🛒</span>
+        Cart
+        <span class="cart-badge" *ngIf="cartItemCount > 0">{{cartItemCount}}</span>
+      </a>
+      
+      <a routerLink="/dashboard" class="nav-link" routerLinkActive="active" *ngIf="currentUser?.type === 'customer'">
+        <span class="nav-icon">📊</span>
+        Dashboard
+      </a>
+      
+      <div class="nav-actions">
+        <button *ngIf="currentUser" (click)="logout()" class="btn secondary btn-sm">
+          <span class="nav-icon">🚪</span>
+          Logout
+        </button>
+      </div>
+    </div>
+    
+    <button class="mobile-menu-btn" (click)="toggleMenu()">
+      <span class="hamburger" [class.active]="isMenuOpen"></span>
+    </button>
+  </div>
+</nav>
+
+<main class="main-content">
+  <router-outlet></router-outlet>
+</main>
+
+<footer class="footer">
+  <div class="container">
+    <div class="footer-content">
+      <div class="footer-section">
+        <h4>MultiVendor Store</h4>
+        <p>Your one-stop destination for quality products from trusted vendors.</p>
+      </div>
+      <div class="footer-section">
+        <h4>Quick Links</h4>
+        <a routerLink="/home">Home</a>
+        <a routerLink="/vendor/login">Vendor Login</a>
+        <a routerLink="/customer/login">Customer Login</a>
+      </div>
+      <div class="footer-section">
+        <h4>Support</h4>
+        <a href="mailto:support@multivendor.com">Contact Us</a>
+        <a href="#">Help Center</a>
+        <a href="#">Terms of Service</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2024 MultiVendor Store. All rights reserved.</p>
+    </div>
+  </div>
+</footer>

@@ -1,0 +1,219 @@
+<div class="container" *ngIf="product">
+  <div class="product-detail">
+    <div class="product-gallery">
+      <div class="main-image">
+        <img [src]="selectedImage" [alt]="product.name" class="main-img">
+        <div class="image-overlay">
+          <span class="zoom-icon">🔍</span>
+        </div>
+      </div>
+      <div class="thumbnail-gallery">
+        <img *ngFor="let image of product.images" 
+             [src]="image" 
+             [alt]="product.name"
+             (click)="selectedImage = image"
+             [class.active]="selectedImage === image"
+             class="thumbnail">
+      </div>
+    </div>
+    
+    <div class="product-info">
+      <div class="product-header">
+        <div class="category-badge">{{product.category}}</div>
+        <h1>{{product.name}}</h1>
+        <div class="rating">
+          <span class="stars">⭐⭐⭐⭐⭐</span>
+          <span class="rating-text">(4.8) 124 reviews</span>
+        </div>
+      </div>
+      
+      <div class="price-section">
+        <div class="current-price">₹{{product.price | number}}</div>
+        <div class="price-details">
+          <span class="original-price">₹{{(product.price * 1.2) | number}}</span>
+          <span class="discount">20% OFF</span>
+        </div>
+      </div>
+      
+      <div class="product-description">
+        <h3>Product Details</h3>
+        <p>{{product.description}}</p>
+        
+        <div class="features">
+          <div class="feature-item">
+            <span class="feature-icon">✅</span>
+            <span>Free Delivery</span>
+          </div>
+          <div class="feature-item">
+            <span class="feature-icon">🔄</span>
+            <span>7 Days Return</span>
+          </div>
+          <div class="feature-item">
+            <span class="feature-icon">🛡️</span>
+            <span>1 Year Warranty</span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="stock-info">
+        <div class="stock-indicator" [class.low-stock]="product.quantity < 10">
+          <span class="stock-icon">📦</span>
+          <span *ngIf="product.quantity > 10" class="stock-text">In Stock ({{product.quantity}} available)</span>
+          <span *ngIf="product.quantity <= 10 && product.quantity > 0" class="stock-text">Only {{product.quantity}} left!</span>
+          <span *ngIf="product.quantity === 0" class="stock-text">Out of Stock</span>
+        </div>
+      </div>
+      
+      <div class="purchase-section">
+        <div class="quantity-selector">
+          <label>Quantity</label>
+          <div class="quantity-controls">
+            <button type="button" (click)="purchaseQuantity = purchaseQuantity > 1 ? purchaseQuantity - 1 : 1" 
+                    class="qty-btn">-</button>
+            <input type="number" [(ngModel)]="purchaseQuantity" 
+                   min="1" [max]="product.quantity" class="qty-input">
+            <button type="button" (click)="purchaseQuantity = purchaseQuantity < product.quantity ? purchaseQuantity + 1 : product.quantity" 
+                    class="qty-btn">+</button>
+          </div>
+        </div>
+        
+        <div class="action-buttons">
+          <button class="btn secondary btn-lg add-to-cart" 
+                  (click)="addToCart()"
+                  [disabled]="purchaseQuantity < 1 || purchaseQuantity > product.quantity || product.quantity === 0">
+            <span>🛒</span>
+            Add to Cart
+          </button>
+          <button class="btn primary btn-lg buy-now" 
+                  (click)="buyNow()" 
+                  [disabled]="purchaseQuantity < 1 || purchaseQuantity > product.quantity || product.quantity === 0">
+            <span>⚡</span>
+            Buy Now
+          </button>
+        </div>
+        
+        <div class="total-price">
+          <span class="total-label">Total: </span>
+          <span class="total-amount">₹{{getTotalAmount() | number}}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Payment Modal -->
+<div *ngIf="showPaymentModal" class="modal">
+  <div class="modal-content payment-modal">
+    <div class="modal-header">
+      <h3>Choose Payment Method</h3>
+      <button class="close-btn" (click)="closePaymentModal()">✕</button>
+    </div>
+    
+    <div class="payment-options">
+      <div class="payment-option disabled">
+        <input type="radio" value="upi" [(ngModel)]="paymentMethod" disabled id="upi">
+        <label for="upi" class="payment-label">
+          <div class="payment-icon">💳</div>
+          <div class="payment-info">
+            <h4>UPI Payment</h4>
+            <p>Currently Unavailable</p>
+          </div>
+        </label>
+      </div>
+      
+      <div class="payment-option">
+        <input type="radio" value="cod" [(ngModel)]="paymentMethod" id="cod">
+        <label for="cod" class="payment-label">
+          <div class="payment-icon">💰</div>
+          <div class="payment-info">
+            <h4>Cash on Delivery</h4>
+            <p>Pay when you receive</p>
+          </div>
+        </label>
+      </div>
+    </div>
+    
+    <div class="order-summary">
+      <h4>Order Summary</h4>
+      <div class="summary-item">
+        <img [src]="product!.images[0]" [alt]="product!.name" class="summary-img">
+        <div class="summary-details">
+          <h5>{{product?.name}}</h5>
+          <p>Quantity: {{purchaseQuantity}}</p>
+          <p class="summary-price">₹{{getTotalAmount() | number}}</p>
+        </div>
+      </div>
+    </div>
+    
+    <div class="delivery-address">
+      <div class="address-header">
+        <h4>Delivery Address</h4>
+        <button *ngIf="!editingAddress" (click)="editAddress()" class="btn secondary btn-sm">
+          <span>✏️</span>
+          Edit
+        </button>
+      </div>
+      
+      <div class="address-card">
+        <div class="address-icon">📍</div>
+        <div class="address-details" *ngIf="!editingAddress">
+          <p>{{currentCustomer?.name}}</p>
+          <p>{{currentCustomer?.address}}</p>
+          <p>Phone: {{currentCustomer?.phone}}</p>
+        </div>
+        
+        <div class="address-edit" *ngIf="editingAddress">
+          <p><strong>{{currentCustomer?.name}}</strong></p>
+          <textarea [(ngModel)]="tempAddress" 
+                    class="address-input" 
+                    rows="3" 
+                    placeholder="Enter your delivery address"></textarea>
+          <div class="phone-edit">
+            <label>Phone:</label>
+            <input type="tel" [(ngModel)]="tempPhone" 
+                   class="phone-input" 
+                   placeholder="Enter phone number">
+          </div>
+          <div class="edit-actions">
+            <button (click)="saveAddress()" class="btn primary btn-xs">✓ Save</button>
+            <button (click)="cancelAddressEdit()" class="btn secondary btn-xs">× Cancel</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="modal-actions">
+      <button class="btn secondary" (click)="closePaymentModal()">Cancel</button>
+      <button class="btn primary" (click)="proceedOrder()" [disabled]="!paymentMethod">
+        <span>🚀</span>
+        Place Order
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Success Modal -->
+<div *ngIf="showSuccessModal" class="modal">
+  <div class="modal-content success-modal">
+    <div class="success-animation">
+      <div class="checkmark">✅</div>
+      <div class="confetti">🎉</div>
+    </div>
+    <h2>Order Placed Successfully!</h2>
+    <p>Hurray! Your order has been placed and will be processed soon.</p>
+    <div class="order-details">
+      <p><strong>Order ID:</strong> #{{orderId}}</p>
+      <p><strong>Total Amount:</strong> ₹{{getTotalAmount() | number}}</p>
+    </div>
+    <button class="btn primary btn-lg" (click)="closeSuccessModal()">
+      <span>🛍️</span>
+      Continue Shopping
+    </button>
+  </div>
+</div>
+
+<!-- Toast Notification -->
+<div *ngIf="showToast" class="toast success-toast">
+  <span class="toast-icon">🎉</span>
+  <span>Order placed successfully!</span>
+</div>

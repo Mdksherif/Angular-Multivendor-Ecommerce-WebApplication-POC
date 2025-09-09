@@ -1,0 +1,45 @@
+<div class="chat-container">
+  <div class="chat-header">
+    <div class="chat-user-info">
+      <div class="user-avatar">
+        <span>{{userType === 'customer' ? conversation.vendorName?.charAt(0) : conversation.customerName?.charAt(0)}}</span>
+      </div>
+      <div class="user-details">
+        <h4>{{userType === 'customer' ? conversation.vendorName : conversation.customerName}}</h4>
+        <span class="user-status">Online</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="chat-messages">
+    <div *ngFor="let message of conversation.messages" 
+         class="message" 
+         [class.customer-message]="message.senderType === 'customer'"
+         [class.vendor-message]="message.senderType === 'vendor'">
+      <div class="message-content">
+        <div class="message-text">{{message.message}}</div>
+        <div class="message-time">{{message.timestamp | date:'short'}}</div>
+      </div>
+    </div>
+    
+    <div *ngIf="conversation.messages.length === 0" class="empty-chat">
+      <div class="empty-icon">💬</div>
+      <p>Start a conversation!</p>
+    </div>
+  </div>
+
+  <div class="chat-input">
+    <div class="input-container">
+      <input type="text" 
+             [(ngModel)]="newMessage" 
+             (keyup.enter)="sendMessage()"
+             placeholder="Type your message..."
+             class="message-input">
+      <button (click)="sendMessage()" 
+              [disabled]="!newMessage.trim()" 
+              class="send-btn">
+        <span>📤</span>
+      </button>
+    </div>
+  </div>
+</div>

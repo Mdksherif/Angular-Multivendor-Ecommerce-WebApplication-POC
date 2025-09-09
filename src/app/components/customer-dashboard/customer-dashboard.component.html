@@ -1,0 +1,297 @@
+<div class="container">
+  <div class="dashboard-header">
+    <div class="profile-avatar">
+      <div class="avatar-circle">
+        <span class="avatar-text">{{currentCustomer?.name?.charAt(0)?.toUpperCase()}}</span>
+      </div>
+    </div>
+    <div class="profile-info">
+      <h1>{{currentCustomer?.name}}</h1>
+      <p class="profile-subtitle">Customer Dashboard</p>
+    </div>
+  </div>
+
+  <div class="dashboard-tabs">
+    <button class="tab-btn" 
+            [class.active]="activeTab === 'profile'" 
+            (click)="activeTab = 'profile'">
+      <span class="tab-icon">👤</span>
+      Profile
+    </button>
+    <button class="tab-btn" 
+            [class.active]="activeTab === 'cart'" 
+            (click)="activeTab = 'cart'">
+      <span class="tab-icon">🛒</span>
+      Cart
+      <span class="badge" *ngIf="cartItems.length > 0">{{cartItems.length}}</span>
+    </button>
+    <button class="tab-btn" 
+            [class.active]="activeTab === 'orders'" 
+            (click)="activeTab = 'orders'">
+      <span class="tab-icon">📋</span>
+      Orders
+    </button>
+  </div>
+
+  <!-- Profile Tab -->
+  <div *ngIf="activeTab === 'profile'" class="tab-content">
+    <div class="profile-content">
+      <div class="profile-card">
+        <div class="card-header">
+          <h3>Personal Information</h3>
+          <button *ngIf="!editMode" (click)="toggleEditMode()" class="btn secondary btn-sm">
+            <span>✏️</span>
+            Edit Profile
+          </button>
+          <div *ngIf="editMode" class="edit-actions">
+            <button (click)="saveProfile()" class="btn primary btn-sm">
+              <span>💾</span>
+              Save
+            </button>
+            <button (click)="toggleEditMode()" class="btn secondary btn-sm">
+              <span>❌</span>
+              Cancel
+            </button>
+          </div>
+        </div>
+
+        <div class="profile-details">
+          <div class="detail-row">
+            <label>Full Name</label>
+            <div *ngIf="!editMode" class="detail-value">{{currentCustomer?.name}}</div>
+            <input *ngIf="editMode" type="text" [(ngModel)]="editForm.name" class="form-input" required>
+          </div>
+
+          <div class="detail-row">
+            <label>Email Address</label>
+            <div *ngIf="!editMode" class="detail-value">{{currentCustomer?.email}}</div>
+            <input *ngIf="editMode" type="email" [(ngModel)]="editForm.email" class="form-input" required>
+          </div>
+
+          <div class="detail-row">
+            <label>Phone Number</label>
+            <div *ngIf="!editMode" class="detail-value">{{currentCustomer?.phone}}</div>
+            <input *ngIf="editMode" type="tel" [(ngModel)]="editForm.phone" class="form-input" required>
+          </div>
+
+          <div class="detail-row">
+            <label>Address</label>
+            <div *ngIf="!editMode" class="detail-value">{{currentCustomer?.address}}</div>
+            <textarea *ngIf="editMode" [(ngModel)]="editForm.address" class="form-input" rows="3" required></textarea>
+          </div>
+        </div>
+      </div>
+
+      <div class="profile-card">
+        <div class="card-header">
+          <h3>Security Settings</h3>
+        </div>
+        
+        <div class="security-options">
+          <div class="security-item">
+            <div class="security-info">
+              <h4>Password</h4>
+              <p>Change your account password</p>
+            </div>
+            <button (click)="openPasswordModal()" class="btn primary btn-sm">
+              <span>🔒</span>
+              Change Password
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cart Tab -->
+  <div *ngIf="activeTab === 'cart'" class="tab-content">
+    <div class="cart-section">
+      <div *ngIf="cartItems.length === 0" class="empty-state">
+        <div class="empty-icon">🛒</div>
+        <h3>Your cart is empty</h3>
+        <p>Add some products to get started!</p>
+        <a routerLink="/home" class="btn primary">Continue Shopping</a>
+      </div>
+
+      <div *ngIf="cartItems.length > 0" class="cart-content">
+        <div class="cart-items">
+          <div *ngFor="let item of cartItems" class="cart-item">
+            <div class="item-image">
+              <img [src]="item.product.images[0]" [alt]="item.product.name">
+            </div>
+            
+            <div class="item-details">
+              <h4>{{item.product.name}}</h4>
+              <p class="item-description">{{item.product.description}}</p>
+              <div class="item-price">₹{{item.product.price}}</div>
+            </div>
+            
+            <div class="item-controls">
+              <div class="quantity-controls">
+                <button (click)="updateCartQuantity(item.id, item.quantity - 1)" class="qty-btn">-</button>
+                <span class="quantity">{{item.quantity}}</span>
+                <button (click)="updateCartQuantity(item.id, item.quantity + 1)" class="qty-btn">+</button>
+              </div>
+              <div class="item-total">₹{{item.product.price * item.quantity}}</div>
+              <button (click)="removeCartItem(item.id)" class="remove-btn">🗑️</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="cart-summary">
+          <div class="summary-card">
+            <h3>Cart Summary</h3>
+            <div class="summary-row">
+              <span>Total Items:</span>
+              <span>{{cartItems.length}}</span>
+            </div>
+            <div class="summary-row total">
+              <span>Total Amount:</span>
+              <span>₹{{getCartTotal()}}</span>
+            </div>
+            <button (click)="proceedToCheckout()" class="btn primary btn-lg">
+              <span>🚀</span>
+              Proceed to Checkout
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Orders Tab -->
+  <div *ngIf="activeTab === 'orders'" class="tab-content">
+    <div class="orders-section">
+      <div *ngIf="customerOrders.length === 0" class="empty-state">
+        <div class="empty-icon">📋</div>
+        <h3>No orders yet</h3>
+        <p>Your order history will appear here after you make purchases.</p>
+        <a routerLink="/home" class="btn primary">Start Shopping</a>
+      </div>
+
+      <div *ngIf="customerOrders.length > 0" class="orders-content">
+        <div class="orders-header">
+          <h3>Your Orders</h3>
+          <span class="order-count">{{customerOrders.length}} orders</span>
+        </div>
+        
+        <div class="orders-list">
+          <div *ngFor="let order of customerOrders" class="order-card">
+            <div class="order-header">
+              <div class="order-info">
+                <h4>Order #{{order.id}}</h4>
+                <span class="order-date">{{order.orderDate | date:'medium'}}</span>
+              </div>
+              <div class="order-status">
+                <span class="status-badge" [class]="getStatusColor(order.status)">{{order.status | uppercase}}</span>
+              </div>
+            </div>
+            
+            <div class="order-details">
+              <div class="order-product">
+                <img [src]="order.productDetails.images[0]" [alt]="order.productDetails.name">
+                <div class="product-info">
+                  <h5>{{order.productDetails.name}}</h5>
+                  <p class="product-description">{{order.productDetails.description}}</p>
+                  <div class="product-meta">
+                    <span class="quantity">Qty: {{order.quantity}}</span>
+                    <span class="price">₹{{order.productDetails.price}} each</span>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="order-summary">
+                <div class="summary-row">
+                  <span>Quantity:</span>
+                  <span>{{order.quantity}}</span>
+                </div>
+                <div class="summary-row">
+                  <span>Unit Price:</span>
+                  <span>₹{{order.productDetails.price}}</span>
+                </div>
+                <div class="summary-row total">
+                  <span>Total Amount:</span>
+                  <span>₹{{order.totalAmount}}</span>
+                </div>
+                <div class="summary-row">
+                  <span>Payment:</span>
+                  <span class="payment-method">{{order.paymentMethod | uppercase}}</span>
+                </div>
+              </div>
+            </div>
+            
+            <div class="order-actions">
+              <button class="btn secondary btn-sm" *ngIf="order.status === 'delivered'">
+                <span>⭐</span>
+                Rate Product
+              </button>
+              <button class="btn secondary btn-sm" (click)="openChat(order.productDetails.vendorId, 'Vendor')">
+                <span>💬</span>
+                Chat with Vendor
+              </button>
+              <button class="btn primary btn-sm" *ngIf="order.status !== 'delivered'">
+                <span>📍</span>
+                Track Order
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Password Change Modal -->
+<div *ngIf="showPasswordModal" class="modal">
+  <div class="modal-content password-modal">
+    <div class="modal-header">
+      <h3>Change Password</h3>
+      <button class="close-btn" (click)="closePasswordModal()">✕</button>
+    </div>
+    
+    <form (ngSubmit)="changePassword()" #passwordFormRef="ngForm">
+      <div class="form-group">
+        <label>Current Password</label>
+        <input type="password" [(ngModel)]="passwordForm.currentPassword" 
+               name="currentPassword" required class="form-input">
+      </div>
+      
+      <div class="form-group">
+        <label>New Password</label>
+        <input type="password" [(ngModel)]="passwordForm.newPassword" 
+               name="newPassword" required minlength="6" class="form-input">
+        <small class="form-hint">Password must be at least 6 characters long</small>
+      </div>
+      
+      <div class="form-group">
+        <label>Confirm New Password</label>
+        <input type="password" [(ngModel)]="passwordForm.confirmPassword" 
+               name="confirmPassword" required class="form-input">
+      </div>
+      
+      <div class="modal-actions">
+        <button type="button" class="btn secondary" (click)="closePasswordModal()">Cancel</button>
+        <button type="submit" class="btn primary" [disabled]="!passwordFormRef.valid">
+          <span>🔒</span>
+          Change Password
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Chat Modal -->
+<div *ngIf="showChatModal" class="modal">
+  <div class="modal-content chat-modal">
+    <div class="modal-header">
+      <h3>Chat with {{chatVendorName}}</h3>
+      <button class="close-btn" (click)="closeChatModal()">✕</button>
+    </div>
+    
+    <app-chat 
+      [customerId]="currentCustomer.id"
+      [vendorId]="chatVendorId"
+      [userType]="'customer'">
+    </app-chat>
+  </div>
+</div>

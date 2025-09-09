@@ -1,0 +1,610 @@
+<div class="container">
+  <div class="dashboard-header">
+    <div class="welcome-section">
+      <h1>Vendor Dashboard</h1>
+      <p class="welcome-text">Welcome back, <strong>{{currentVendor?.name}}</strong>! 👋</p>
+    </div>
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon">📦</div>
+        <div class="stat-info">
+          <h3>{{myProducts.length}}</h3>
+          <p>Products</p>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">📋</div>
+        <div class="stat-info">
+          <h3>{{myOrders.length}}</h3>
+          <p>Orders</p>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">💰</div>
+        <div class="stat-info">
+          <h3>₹{{getTotalRevenue()}}</h3>
+          <p>Revenue</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="dashboard-tabs">
+    <button class="tab-btn" 
+            [class.active]="activeTab === 'profile'" 
+            (click)="activeTab = 'profile'">
+      <span class="tab-icon">👤</span>
+      Profile
+    </button>
+    <button class="tab-btn" 
+            [class.active]="activeTab === 'products'" 
+            (click)="activeTab = 'products'">
+      <span class="tab-icon">📦</span>
+      Manage Products
+    </button>
+    <button class="tab-btn" 
+            [class.active]="activeTab === 'orders'" 
+            (click)="activeTab = 'orders'">
+      <span class="tab-icon">📋</span>
+      Sales Orders
+      <span class="badge" *ngIf="myOrders.length > 0">{{myOrders.length}}</span>
+    </button>
+    <button class="tab-btn" 
+            [class.active]="activeTab === 'chat'" 
+            (click)="activeTab = 'chat'; loadConversations()">
+      <span class="tab-icon">💬</span>
+      Messages
+      <span class="badge" *ngIf="conversations.length > 0">{{conversations.length}}</span>
+    </button>
+  </div>
+
+  <!-- Profile Tab -->
+  <div *ngIf="activeTab === 'profile'" class="tab-content">
+    <div class="vendor-profile">
+      <!-- Profile Header -->
+      <div class="profile-header-card">
+        <div class="profile-banner">
+          <div class="vendor-avatar">
+            <div class="avatar-circle">
+              <span class="avatar-text">{{currentVendor?.name?.charAt(0)?.toUpperCase()}}</span>
+            </div>
+            <div class="avatar-badge">
+              <span class="verified-icon">✓</span>
+            </div>
+          </div>
+          <div class="vendor-info">
+            <h2>{{currentVendor?.name}}</h2>
+            <p class="business-name">{{currentVendor?.businessName}}</p>
+            <div class="vendor-stats">
+              <div class="stat-item">
+                <span class="stat-number">{{myProducts.length}}</span>
+                <span class="stat-label">Products</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-number">{{myOrders.length}}</span>
+                <span class="stat-label">Orders</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-number">₹{{getTotalRevenue()}}</span>
+                <span class="stat-label">Revenue</span>
+              </div>
+            </div>
+          </div>
+          <div class="profile-actions">
+            <button *ngIf="!editMode" (click)="toggleEditMode()" class="btn-modern primary">
+              <span class="btn-icon">✏️</span>
+              <span>Edit Profile</span>
+            </button>
+            <div *ngIf="editMode" class="edit-actions-modern">
+              <button (click)="saveProfile()" class="btn-modern success">
+                <span class="btn-icon">✓</span>
+                <span>Save Changes</span>
+              </button>
+              <button (click)="toggleEditMode()" class="btn-modern secondary">
+                <span class="btn-icon">×</span>
+                <span>Cancel</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Profile Content Grid -->
+      <div class="profile-grid">
+        <!-- Personal Information -->
+        <div class="info-card">
+          <div class="card-header-modern">
+            <div class="header-icon">👤</div>
+            <h3>Personal Information</h3>
+          </div>
+          
+          <div class="info-fields">
+            <div class="field-group">
+              <label class="field-label">Full Name</label>
+              <div *ngIf="!editMode" class="field-value">
+                <span class="value-text">{{currentVendor?.name}}</span>
+              </div>
+              <div *ngIf="editMode" class="field-input">
+                <input type="text" [(ngModel)]="editForm.name" class="modern-input" placeholder="Enter your full name">
+              </div>
+            </div>
+
+            <div class="field-group">
+              <label class="field-label">Email Address</label>
+              <div *ngIf="!editMode" class="field-value">
+                <span class="value-text">{{currentVendor?.email}}</span>
+                <span class="value-badge verified">✓ Verified</span>
+              </div>
+              <div *ngIf="editMode" class="field-input">
+                <input type="email" [(ngModel)]="editForm.email" class="modern-input" placeholder="Enter your email">
+              </div>
+            </div>
+
+            <div class="field-group">
+              <label class="field-label">Phone Number</label>
+              <div *ngIf="!editMode" class="field-value">
+                <span class="value-text">{{currentVendor?.phone}}</span>
+              </div>
+              <div *ngIf="editMode" class="field-input">
+                <input type="tel" [(ngModel)]="editForm.phone" class="modern-input" placeholder="Enter your phone number">
+              </div>
+            </div>
+
+            <div class="field-group">
+              <label class="field-label">Address</label>
+              <div *ngIf="!editMode" class="field-value">
+                <span class="value-text">{{currentVendor?.address || 'Not provided'}}</span>
+              </div>
+              <div *ngIf="editMode" class="field-input">
+                <textarea [(ngModel)]="editForm.address" class="modern-input" rows="3" placeholder="Enter your address"></textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Business Information -->
+        <div class="info-card">
+          <div class="card-header-modern">
+            <div class="header-icon">🏢</div>
+            <h3>Business Information</h3>
+          </div>
+          
+          <div class="info-fields">
+            <div class="field-group">
+              <label class="field-label">Business Name</label>
+              <div *ngIf="!editMode" class="field-value">
+                <span class="value-text">{{currentVendor?.businessName}}</span>
+              </div>
+              <div *ngIf="editMode" class="field-input">
+                <input type="text" [(ngModel)]="editForm.businessName" class="modern-input" placeholder="Enter your business name">
+              </div>
+            </div>
+
+            <div class="field-group">
+              <label class="field-label">Account Status</label>
+              <div class="field-value">
+                <span class="status-badge active">
+                  <span class="status-dot"></span>
+                  <span>Active Vendor</span>
+                </span>
+              </div>
+            </div>
+
+            <div class="field-group">
+              <label class="field-label">Member Since</label>
+              <div class="field-value">
+                <span class="value-text">January 2024</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Security Settings -->
+        <div class="info-card security-card">
+          <div class="card-header-modern">
+            <div class="header-icon">🔒</div>
+            <h3>Security & Privacy</h3>
+          </div>
+          
+          <div class="security-items">
+            <div class="security-item-modern">
+              <div class="security-content">
+                <div class="security-icon">🔑</div>
+                <div class="security-details">
+                  <h4>Password</h4>
+                  <p>Last changed 30 days ago</p>
+                </div>
+              </div>
+              <button (click)="openPasswordModal()" class="btn-modern outline">
+                <span>Change</span>
+              </button>
+            </div>
+
+            <div class="security-item-modern">
+              <div class="security-content">
+                <div class="security-icon">🛡️</div>
+                <div class="security-details">
+                  <h4>Two-Factor Authentication</h4>
+                  <p>Add an extra layer of security</p>
+                </div>
+              </div>
+              <button class="btn-modern outline" disabled>
+                <span>Enable</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Products Tab -->
+  <div *ngIf="activeTab === 'products'" class="tab-content">
+    <div class="add-product-section">
+      <div class="section-toggle" (click)="showAddProduct = !showAddProduct">
+        <h3>➕ Add New Product</h3>
+        <span class="toggle-icon">{{showAddProduct ? '▼' : '▶'}}</span>
+      </div>
+      
+      <div class="card card-lg" *ngIf="showAddProduct">
+        <div class="card-header">
+          <p>Fill in the details to add a new product to your store</p>
+        </div>
+          
+          <form (ngSubmit)="addProduct()" #productForm="ngForm" class="product-form">
+            <div class="form-row">
+              <div class="form-group">
+                <label>Product Name</label>
+                <input type="text" [(ngModel)]="newProduct.name" name="name" 
+                       placeholder="Enter product name" required>
+              </div>
+              <div class="form-group">
+                <label>Category</label>
+                <select [(ngModel)]="newProduct.category" name="category" required>
+                  <option value="">Select Category</option>
+                  <option value="Electronics">📱 Electronics</option>
+                  <option value="Fashion">👕 Fashion</option>
+                  <option value="Furniture">🪑 Furniture</option>
+                  <option value="Mobiles">📱 Mobiles</option>
+                  <option value="Books">📚 Books</option>
+                  <option value="Home">🏠 Home</option>
+                  <option value="Sports">⚽ Sports</option>
+                </select>
+              </div>
+            </div>
+            
+            <div class="form-group">
+              <label>Description</label>
+              <textarea [(ngModel)]="newProduct.description" name="description" 
+                        placeholder="Describe your product..." required></textarea>
+            </div>
+            
+            <div class="form-group">
+              <label>Product Images</label>
+              <input type="file" #fileInput (change)="onImageSelect($event)" 
+                     accept="image/*" multiple class="file-input">
+              <div class="image-preview" *ngIf="selectedImages.length > 0">
+                <div *ngFor="let image of selectedImages; let i = index" class="preview-item">
+                  <img [src]="image" [alt]="'Preview ' + (i+1)">
+                  <button type="button" (click)="removeImage(i)" class="remove-btn">×</button>
+                </div>
+              </div>
+              <small class="form-hint">Select up to 4 images for your product</small>
+            </div>
+            
+            <div class="form-row">
+              <div class="form-group">
+                <label>Price (₹)</label>
+                <input type="number" [(ngModel)]="newProduct.price" name="price" 
+                       placeholder="0" min="1" required>
+              </div>
+              <div class="form-group">
+                <label>Quantity</label>
+                <input type="number" [(ngModel)]="newProduct.quantity" name="quantity" 
+                       placeholder="0" min="1" required>
+              </div>
+            </div>
+            
+            <button type="submit" class="btn primary btn-lg" [disabled]="!productForm.valid">
+              <span>➕</span>
+              Add Product
+            </button>
+          </form>
+        </div>
+      </div>
+
+    <div class="products-list-section">
+      <div class="section-toggle" (click)="showProductsList = !showProductsList">
+        <h3>📎 Your Products</h3>
+        <div class="toggle-info">
+          <span class="product-count">{{myProducts.length}} products</span>
+          <span class="toggle-icon">{{showProductsList ? '▼' : '▶'}}</span>
+        </div>
+      </div>
+      
+      <div class="card" *ngIf="showProductsList">
+        <div class="card-header">
+          <span class="product-count">{{getFilteredProducts().length}} of {{myProducts.length}} products</span>
+        </div>
+        
+        <div class="product-search">
+          <div class="search-input-wrapper">
+            <span class="search-icon">🔍</span>
+            <input type="text" 
+                   [(ngModel)]="productSearchQuery" 
+                   placeholder="Search your products..."
+                   class="search-input">
+            <button *ngIf="productSearchQuery" 
+                    (click)="productSearchQuery = ''"
+                    class="clear-btn">×</button>
+          </div>
+        </div>
+          
+          <div class="products-grid" *ngIf="getFilteredProducts().length > 0">
+            <div *ngFor="let product of getFilteredProducts()" class="product-item">
+              <div class="product-image">
+                <img [src]="product.images[0]" [alt]="product.name">
+              </div>
+              <div class="product-details">
+                <h4>{{product.name}}</h4>
+                <p class="product-description">{{product.description}}</p>
+                <div class="product-meta">
+                  <span class="price">₹{{product.price}}</span>
+                  <div class="stock-control">
+                    <span *ngIf="!editingStock[product.id]" class="quantity">Stock: {{product.quantity}}</span>
+                    <div *ngIf="editingStock[product.id]" class="stock-edit">
+                      <input type="number" [(ngModel)]="stockValues[product.id]" 
+                             class="stock-input" min="0">
+                      <button (click)="saveStock(product.id)" class="btn primary btn-xs">✓</button>
+                      <button (click)="cancelStockEdit(product.id)" class="btn secondary btn-xs">×</button>
+                    </div>
+                    <button *ngIf="!editingStock[product.id]" 
+                            (click)="editStock(product.id, product.quantity)" 
+                            class="btn secondary btn-xs edit-stock-btn">
+                      ✏️ Edit
+                    </button>
+                  </div>
+                  <span class="category">{{product.category}}</span>
+                  <div class="status-toggle">
+                    <label class="toggle-switch">
+                      <input type="checkbox" 
+                             [checked]="product.status === 'active'"
+                             (change)="toggleProductStatus(product.id, $event)">
+                      <span class="slider"></span>
+                    </label>
+                    <span class="status-label" [class]="product.status">
+                      {{product.status === 'active' ? 'Active' : 'Inactive'}}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div *ngIf="myProducts.length === 0" class="empty-state">
+            <div class="empty-icon">📦</div>
+            <h4>No products yet</h4>
+            <p>Add your first product to get started!</p>
+          </div>
+          
+          <div *ngIf="myProducts.length > 0 && getFilteredProducts().length === 0" class="empty-state">
+            <div class="empty-icon">🔍</div>
+            <h4>No products found</h4>
+            <p>Try searching with different keywords</p>
+          </div>
+        </div>
+      </div>
+  </div>
+
+  <!-- Orders Tab -->
+  <div *ngIf="activeTab === 'orders'" class="tab-content">
+    <div class="card">
+      <div class="card-header">
+        <h3>Sales Orders</h3>
+        <span class="order-count">{{getSortedAndFilteredOrders().length}} of {{myOrders.length}} orders</span>
+      </div>
+      
+      <div class="order-search">
+        <div class="search-input-wrapper">
+          <span class="search-icon">🔍</span>
+          <input type="text" 
+                 [(ngModel)]="orderSearchQuery" 
+                 placeholder="Search by order ID or customer details..."
+                 class="search-input">
+          <button *ngIf="orderSearchQuery" 
+                  (click)="orderSearchQuery = ''"
+                  class="clear-btn">×</button>
+        </div>
+      </div>
+      
+      <div class="orders-list" *ngIf="getSortedAndFilteredOrders().length > 0">
+        <div *ngFor="let order of getSortedAndFilteredOrders()" class="order-item">
+          <div class="order-header">
+            <div class="order-info">
+              <h4>Order #{{order.id}}</h4>
+              <span class="order-date">{{order.orderDate | date:'medium'}}</span>
+            </div>
+            <div class="order-status">
+              <span class="status-badge" [class]="order.status">{{order.status | uppercase}}</span>
+            </div>
+          </div>
+          
+          <div class="order-details">
+            <div class="order-product">
+              <img [src]="order.productDetails.images[0]" [alt]="order.productDetails.name">
+              <div class="product-info">
+                <h5>{{order.productDetails.name}}</h5>
+                <p>Quantity: {{order.quantity}}</p>
+              </div>
+            </div>
+            
+            <div class="order-customer">
+              <h6>Customer Details</h6>
+              <p><strong>{{order.customerDetails.name}}</strong></p>
+              <p>{{order.customerDetails.email}}</p>
+              <p>{{order.customerDetails.phone}}</p>
+            </div>
+            
+            <div class="order-delivery">
+              <h6>Delivery Address</h6>
+              <div class="delivery-info">
+                <div class="address-icon">📍</div>
+                <div class="address-text">
+                  <p>{{order.customerDetails.name}}</p>
+                  <p>{{order.customerDetails.address}}</p>
+                  <p>Phone: {{order.customerDetails.phone}}</p>
+                </div>
+              </div>
+            </div>
+            
+            <div class="order-payment">
+              <div class="payment-info">
+                <span class="amount">₹{{order.totalAmount}}</span>
+                <span class="method">{{order.paymentMethod | uppercase}}</span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="order-actions">
+            <div class="status-update">
+              <label>Update Status:</label>
+              <select [(ngModel)]="order.status" 
+                      (change)="updateOrderStatus(order.id, order.status)"
+                      class="status-select">
+                <option value="placed">📋 Placed</option>
+                <option value="packed">📦 Packed</option>
+                <option value="delivered">✅ Delivered</option>
+                <option value="cancelled">❌ Cancelled</option>
+              </select>
+            </div>
+            <button (click)="openChat(order.customerDetails.id, order.customerDetails.name)" 
+                    class="btn secondary btn-sm message-btn">
+              <span>💬</span>
+              Message Customer
+            </button>
+          </div>
+        </div>
+      </div>
+      
+      <div *ngIf="myOrders.length === 0" class="empty-state">
+        <div class="empty-icon">📋</div>
+        <h4>No orders yet</h4>
+        <p>Orders will appear here when customers purchase your products.</p>
+      </div>
+      
+      <div *ngIf="myOrders.length > 0 && getSortedAndFilteredOrders().length === 0" class="empty-state">
+        <div class="empty-icon">🔍</div>
+        <h4>No orders found</h4>
+        <p>Try searching with different keywords</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Chat Tab -->
+  <div *ngIf="activeTab === 'chat'" class="tab-content">
+    <div class="chat-section">
+      <div *ngIf="conversations.length === 0" class="empty-state">
+        <div class="empty-icon">💬</div>
+        <h3>No conversations yet</h3>
+        <p>Customer messages will appear here when they contact you.</p>
+      </div>
+
+      <div *ngIf="conversations.length > 0" class="conversations-list">
+        <div class="conversations-header">
+          <h3>Customer Messages</h3>
+          <span class="conversation-count">{{conversations.length}} conversations</span>
+        </div>
+        
+        <div class="conversation-items">
+          <div *ngFor="let conversation of conversations" class="conversation-item">
+            <div class="conversation-header">
+              <div class="customer-info">
+                <div class="customer-avatar">
+                  <span>{{conversation.customerName.charAt(0)}}</span>
+                </div>
+                <div class="customer-details">
+                  <h4>{{conversation.customerName}}</h4>
+                  <span class="customer-status">🟢 Active</span>
+                </div>
+              </div>
+              <div class="conversation-actions">
+                <span class="message-count">{{conversation.messages.length}} messages</span>
+                <button (click)="openChat(conversation.customerId, conversation.customerName)" 
+                        class="btn primary btn-sm">
+                  <span>💬</span>
+                  Reply
+                </button>
+              </div>
+            </div>
+            
+            <div class="conversation-preview">
+              <div class="last-message">
+                <span class="message-label">Latest:</span>
+                <span class="message-text">{{conversation.lastMessage || 'No messages yet'}}</span>
+              </div>
+              <div class="message-meta">
+                <span class="message-time">🕰️ {{conversation.lastMessageTime | date:'MMM d, h:mm a'}}</span>
+                <span class="message-status unread" *ngIf="conversation.messages.length > 0">New</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Password Change Modal -->
+<div *ngIf="showPasswordModal" class="modal">
+  <div class="modal-content password-modal">
+    <div class="modal-header">
+      <h3>Change Password</h3>
+      <button class="close-btn" (click)="closePasswordModal()">✕</button>
+    </div>
+    
+    <form (ngSubmit)="changePassword()" #passwordFormRef="ngForm">
+      <div class="form-group">
+        <label>Current Password</label>
+        <input type="password" [(ngModel)]="passwordForm.currentPassword" 
+               name="currentPassword" required class="form-input">
+      </div>
+      
+      <div class="form-group">
+        <label>New Password</label>
+        <input type="password" [(ngModel)]="passwordForm.newPassword" 
+               name="newPassword" required minlength="6" class="form-input">
+        <small class="form-hint">Password must be at least 6 characters long</small>
+      </div>
+      
+      <div class="form-group">
+        <label>Confirm New Password</label>
+        <input type="password" [(ngModel)]="passwordForm.confirmPassword" 
+               name="confirmPassword" required class="form-input">
+      </div>
+      
+      <div class="modal-actions">
+        <button type="button" class="btn secondary" (click)="closePasswordModal()">Cancel</button>
+        <button type="submit" class="btn primary" [disabled]="!passwordFormRef.valid">
+          <span>🔒</span>
+          Change Password
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Chat Modal -->
+<div *ngIf="showChatModal" class="modal">
+  <div class="modal-content chat-modal">
+    <div class="modal-header">
+      <h3>Chat with {{chatCustomerName}}</h3>
+      <button class="close-btn" (click)="closeChatModal()">✕</button>
+    </div>
+    
+    <app-chat 
+      [customerId]="chatCustomerId"
+      [vendorId]="currentVendor.id"
+      [userType]="'vendor'">
+    </app-chat>
+  </div>
+</div>
