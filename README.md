@@ -63,7 +63,7 @@ src/
 1. Clone the repository
 ```bash
 git clone <repository-url>
-cd frontend-backup
+cd Angular-Multivendor-Ecommerce-WebApplication-POC-master
 ```
 
 2. Install dependencies
