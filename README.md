@@ -1,6 +1,6 @@
 # Ecommerce Multivendor Store
 
-A proof of concept (POC) for a multivendor ecommerce platform built with Angular. This demonstrates the core functionality of enabling multiple vendors to sell products through a unified marketplace, featuring separate interfaces for customers and vendors with mobile app support using Capacitor.
+A proof of concept (POC) for a multivendor ecommerce platform built with Angular. This demonstrates the core functionality of enabling multiple vendors to sell products through a unified marketplace, featuring separate interfaces for customers and vendors with webApp support using Angular and mobile app support using Capacitor.
 
 ## Features
 
@@ -22,10 +22,10 @@ A proof of concept (POC) for a multivendor ecommerce platform built with Angular
 
 ## Tech Stack
 
-- **Frontend**: Angular
+- **Frontend**: Angular 
 - **Mobile**: Capacitor
 - **Styling**: SCSS
-- **Platform**: Android support included
+- **Platform**: WebApp , Android support included
 
 ## Project Structure
 
@@ -84,13 +84,6 @@ npx cap open android
 
 ## Development
 
-- **Web**: `ng serve` - runs on http://localhost:4200
+- **Web**: `npm start` - runs on http://localhost:4200
 - **Android**: Use Android Studio after running `npx cap open android`
 
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Commit your changes
-4. Push to the branch
-5. Create a Pull Request
