@@ -73,7 +73,7 @@ npm install
 
 3. Run the development server
 ```bash
-ng serve
+npm start or ng serve 
 ```
 
 4. For Android development
